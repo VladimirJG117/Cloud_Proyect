@@ -1,0 +1,15 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-24",
+            "path": "c:\\Users\\Vladimir\\OneDrive\\Escritorio\\6to SEMESTRE\\REDES Y CONECTIVIDAD\\2DO PARCIAL\\c-s\\c-s\\cliente-servidor\\graalvm-jdk-24.0.1+9.1"
+        }
+    ],
+    "graalvm.home": "c:\\Users\\Vladimir\\OneDrive\\Escritorio\\6to SEMESTRE\\REDES Y CONECTIVIDAD\\2DO PARCIAL\\c-s\\c-s\\cliente-servidor\\graalvm-jdk-24.0.1+9.1",
+    "graalvm.installations": [
+        "c:\\Users\\Vladimir\\OneDrive\\Escritorio\\6to SEMESTRE\\REDES Y CONECTIVIDAD\\2DO PARCIAL\\c-s\\c-s\\cliente-servidor\\graalvm-jdk-24.0.1+9.1"
+    ],
+    "terminal.integrated.env.windows": {
+        "GRAALVM_HOME": "c:\\Users\\Vladimir\\OneDrive\\Escritorio\\6to SEMESTRE\\REDES Y CONECTIVIDAD\\2DO PARCIAL\\c-s\\c-s\\cliente-servidor\\graalvm-jdk-24.0.1+9.1"
+    }
+}
