@@ -1,26 +1,80 @@
-
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ClientesTab } from './components/clientes/ClientesTab';
+import { CitasTab } from "@/components/citas/CitasTab";
+import { BarberosTab } from './components/barberos/BarberosTab';
+import { getClientes, getCitas, getBarberos } from './api';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('clientes');
   const [clientes, setClientes] = useState([]);
   const [citas, setCitas] = useState([]);
-  const [barberos, setBarberos] = useState([]);
+  const [barberos, setBarberos] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get('/api/clientes').then(res => setClientes(res.data));
-    axios.get('/api/citas').then(res => setCitas(res.data));
-    axios.get('/api/barberos').then(res => setBarberos(res.data));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [clientesRes, citasRes, barberosRes] = await Promise.all([
+          getClientes(),
+          getCitas(),
+          getBarberos()
+        ]);
+        setClientes(clientesRes.data);
+        setCitas(citasRes.data);
+        setBarberos(barberosRes.data);
+      } catch (err) {
+        setError("Error al cargar los datos");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const handleUpdate = async () => {
+    try {
+      const [clientesRes, citasRes, barberosRes] = await Promise.all([
+        getClientes(),
+        getCitas(),
+        getBarberos()
+      ]);
+      setClientes(clientesRes.data);
+      setCitas(citasRes.data);
+      setBarberos(barberosRes.data);
+    } catch (err) {
+      console.error("Error al actualizar:", err);
+    }
+  };
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center text-red-500">
+      <h2 className="text-2xl font-bold mb-4">Error</h2>
+      <p>{error}</p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Reintentar
+      </button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 font-sans">
-      <h1 className="text-4xl font-bold text-center text-[#093F6C] mb-8">Barbería Pro - Gestión</h1>
+      <h1 className="text-4xl font-bold text-center text-[#093F6C] mb-8">Barbería NextStyle - Gestión</h1>
 
-      <Tabs defaultValue="clientes" className="max-w-7xl mx-auto">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-7xl mx-auto">
         <TabsList className="flex justify-center gap-4 mb-6">
           <TabsTrigger value="clientes">Clientes</TabsTrigger>
           <TabsTrigger value="citas">Citas</TabsTrigger>
@@ -28,98 +82,15 @@ function App() {
         </TabsList>
 
         <TabsContent value="clientes">
-          <Card>
-            <CardContent className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Correo</TableHead>
-                    <TableHead>Teléfono</TableHead>
-                    <TableHead>Frecuente</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clientes.map(cliente => (
-                    <TableRow key={cliente.id_cliente}>
-                      <TableCell>{cliente.id_cliente}</TableCell>
-                      <TableCell>{cliente.nombre}</TableCell>
-                      <TableCell>{cliente.correo}</TableCell>
-                      <TableCell>{cliente.telefono}</TableCell>
-                      <TableCell>{cliente.frecuente ? 'Sí' : 'No'}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <ClientesTab data={clientes} onUpdate={handleUpdate} />
         </TabsContent>
 
         <TabsContent value="citas">
-          <Card>
-            <CardContent className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID Cita</TableHead>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Servicio</TableHead>
-                    <TableHead>ID Cliente</TableHead>
-                    <TableHead>Nombre Cliente</TableHead>
-                    <TableHead>ID Barbero</TableHead>
-                    <TableHead>Nombre Barbero</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {citas.map(cita => (
-                    <TableRow key={cita.id_cita}>
-                      <TableCell>{cita.id_cita}</TableCell>
-                      <TableCell>{cita.fecha}</TableCell>
-                      <TableCell>{cita.hora}</TableCell>
-                      <TableCell>{cita.servicio}</TableCell>
-                      <TableCell>{cita.id_cliente}</TableCell>
-                      <TableCell>{cita.nombre_cliente}</TableCell>
-                      <TableCell>{cita.id_barbero}</TableCell>
-                      <TableCell>{cita.nombre_barbero}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <CitasTab data={citas} barberos={barberos} clientes={clientes} onUpdate={handleUpdate} />
         </TabsContent>
 
         <TabsContent value="barberos">
-          <Card>
-            <CardContent className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Teléfono</TableHead>
-                    <TableHead>Especialidad</TableHead>
-                    <TableHead>Turno</TableHead>
-                    <TableHead>Activo</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {barberos.map(barbero => (
-                    <TableRow key={barbero.id_barbero}>
-                      <TableCell>{barbero.id_barbero}</TableCell>
-                      <TableCell>{barbero.nombre}</TableCell>
-                      <TableCell>{barbero.telefono}</TableCell>
-                      <TableCell>{barbero.especialidad}</TableCell>
-                      <TableCell>{barbero.turno}</TableCell>
-                      <TableCell>{barbero.activo ? 'Sí' : 'No'}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <BarberosTab data={barberos} onUpdate={handleUpdate} />
         </TabsContent>
       </Tabs>
     </div>
